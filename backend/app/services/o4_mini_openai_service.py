@@ -12,9 +12,19 @@ load_dotenv()
 
 class OpenAIo4Service:
     def __init__(self):
-        self.default_client = OpenAI(
-            api_key=os.getenv("OPENAI_API_KEY"),
-        )
+        azure_key = os.getenv("AZURE_OPENAI_API_KEY")
+        azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
+        if azure_key and azure_endpoint:
+            from openai import AzureOpenAI
+            self.default_client = AzureOpenAI(
+                api_key=azure_key,
+                endpoint=azure_endpoint,
+                api_version=azure_endpoint.split("version=")[-1]
+            )
+        else:
+            self.default_client = OpenAI(
+                api_key=os.getenv("OPENAI_API_KEY"),
+            )
         self.encoding = tiktoken.get_encoding("o200k_base")  # Encoder for OpenAI models
         self.base_url = "https://api.openai.com/v1/chat/completions"
 
